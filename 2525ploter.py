@@ -8,9 +8,12 @@ import copy
 
 from Twilite2525AReceiver import Twilite2525AReceiver
 
-port = 'COM6'
-
 sensor_data = {}
+
+def port_reader(file_name='port.txt'):
+    with open(file_name, 'r') as p_file:
+        port = p_file.readline().strip()
+        return port
 
 def received(timestamp, data, length=50):
     # print(timestamp, ed, x, y, z)
@@ -72,6 +75,7 @@ def plot_data(start_time):
 def main():
     try:
         # twilite2525
+        port = port_reader()
         ser = serial.Serial(port, 115200, timeout=1)
         twilite = Twilite2525AReceiver(ser, received)
         twilite.run()

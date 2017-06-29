@@ -7,10 +7,14 @@ import os
 
 from Twilite2525AReceiver import Twilite2525AReceiver
 
-port = 'COM6'
 log_folder = 'log'
 sensor_data = {}
 data_keys = ['rc', 'lq', 'ct', 'ed', 'id', 'ba', 'a1', 'a2', 'x', 'y', 'z']
+
+def port_reader(file_name='port.txt'):
+    with open(file_name, 'r') as p_file:
+        port = p_file.readline().strip()
+        return port
 
 def received(timestamp, data):
     print(timestamp, data['ed'], data['id'], data['ct'], data['lq'], flush=True)
@@ -30,6 +34,7 @@ def main():
 
     # twilite2525
     try:
+        port = port_reader()
         ser = serial.Serial(port, 115200, timeout=1)
         twilite = Twilite2525AReceiver(ser, received)
         twilite.run()
