@@ -8,10 +8,11 @@ import copy
 
 from Twilite2525AReceiver import Twilite2525AReceiver
 
-port = 'COM5'
+port = 'COM6'
 
 sensor_data = {}
-def received(timestamp, data, length=25):
+
+def received(timestamp, data, length=50):
     # print(timestamp, ed, x, y, z)
     keys = ['time', 'x', 'y', 'z']
     x = float(data['x'])/100.
@@ -69,17 +70,19 @@ def plot_data(start_time):
         plt.pause(0.0001)
 
 def main():
-    # twilite2525
-    ser = serial.Serial(port, 115200, timeout=1)
-    twilite = Twilite2525AReceiver(ser, received)
-    twilite.setDaemon(True)
-    twilite.start()
-
-    # matplotlib
-    start_time = time.time()
-    plot_data(start_time)
-    #while True:
-    #    pass
+    try:
+        # twilite2525
+        ser = serial.Serial(port, 115200, timeout=1)
+        twilite = Twilite2525AReceiver(ser, received)
+        twilite.run()
+        
+        # matplotlib
+        start_time = time.time()
+        plot_data(start_time)
+        
+    except serial.SerialException:
+        print('error:could not open port')
+        exit(-1)
 
 if __name__ == '__main__':
     main()
