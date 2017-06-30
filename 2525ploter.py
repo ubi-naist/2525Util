@@ -5,10 +5,24 @@ import matplotlib.pyplot as plt
 import numpy as np
 import time
 import copy
+import os
+from argparse import ArgumentParser
 
 from Twilite2525AReceiver import Twilite2525AReceiver
 
 sensor_data = {}
+
+log = False
+log_folder = 'log'
+log_path = ''
+
+data_keys = ['rc', 'lq', 'ct', 'ed', 'id', 'ba', 'a1', 'a2', 'x', 'y', 'z']
+
+def argv_parser():
+    argparser = ArgumentParser()
+    argparser.add_argument('--log', action='store_const', const=True, default=False)
+    args_param = argparser.parse_args()
+    return args_param
 
 def port_reader(file_name='port.txt'):
     with open(file_name, 'r') as p_file:
@@ -16,13 +30,21 @@ def port_reader(file_name='port.txt'):
         return port
 
 def received(timestamp, data, length=50):
-    # print(timestamp, ed, x, y, z)
+    # print(timestamp, data['ed'], data['id'], data['ct'], data['lq'], flush=True)
+    if log:
+        content = str(timestamp)
+        for key in data_keys:
+            content += ',' + data[key]
+        with open(log_path, 'a') as f:
+            f.write(content + '\n')
+
     keys = ['time', 'x', 'y', 'z']
     x = float(data['x'])/100.
     y = float(data['y'])/100.
     z = float(data['z'])/100.
     values = [timestamp, x, y, z]
-    ed = data['ed']
+    ed = data['ed'] + ':' + data['id']
+    # print(timestamp, ed, x, y, z)
     if ed in sensor_data.keys():
         if len(sensor_data[ed][keys[0]]) >= length:
             for key, value in zip(keys, values):
@@ -53,13 +75,13 @@ def plot_data(start_time):
                 plot_dict = {}
                 if current_node_size == 1:
                     axs = [axs]
-
                 for ed, ax in zip(sensor_data_cp.keys(), axs):
                     plot_dict[ed] = {}
                     plot_dict[ed]['ax'] = ax
                     time_array = np.array(sensor_data_cp[ed]['time']) - start_time
                     for key in keys:
                         plot_dict[ed][key], = ax.plot(time_array, sensor_data_cp[ed][key])
+                    ax.set_ylabel(ed)
             else:
                 for ed in plot_dict.keys():
                     time_array = np.array(sensor_data_cp[ed]['time']) - start_time
@@ -67,26 +89,41 @@ def plot_data(start_time):
                         continue
                     for key in keys:
                         plot_dict[ed][key].set_data(time_array, sensor_data_cp[ed][key])
-                    plot_dict[ed]['ax'].set_xlim((time_array.min(), time_array.max()))
-                    plot_dict[ed]['ax'].set_ylim((-2, 2))
+                        plot_dict[ed]['ax'].set_xlim((time_array.min(), time_array.max()))
+                    plot_dict[ed]['ax'].set_ylim((-3, 3))
                     # print(len(time_array))
-        plt.pause(0.0001)
+        plt.pause(0.05)
 
 def main():
     try:
         # twilite2525
         port = port_reader()
         ser = serial.Serial(port, 115200, timeout=1)
+
+        if log:
+            log_file = open(log_path, 'w')
+            header = 'timestamp'
+            for key in data_keys:
+                header += ',' + key
+            log_file.write(header + '\n')
+            log_file.close()
+
         twilite = Twilite2525AReceiver(ser, received)
         twilite.run()
-        
         # matplotlib
         start_time = time.time()
         plot_data(start_time)
-        
     except serial.SerialException:
         print('error:could not open port')
         exit(-1)
 
 if __name__ == '__main__':
+    args = argv_parser()
+    if args.log:
+        print('-- logging option')
+        log = True
+        if not os.path.exists('.' + os.sep + log_folder):
+            os.mkdir(log_folder)
+        timestamp_str = str(int(time.time()))
+        log_path = '.' + os.sep + log_folder + os.sep + timestamp_str + '-log.csv'
     main()
