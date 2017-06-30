@@ -19,7 +19,7 @@ pip install -r requirements.txt
     - デバイスマネージャー>ポート
     - 例：COM*
 - MacOS/Linux
-    - `sh ls /dev/`
+    - `ls /dev/`
     - 例：/dev/tty***
 
 ## 2525logger
