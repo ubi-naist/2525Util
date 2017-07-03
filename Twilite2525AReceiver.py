@@ -15,26 +15,35 @@ class Twilite2525AReceiver():
 
     def _reading(self):
         while not self.stop_event.is_set():
-            line = self.ser.readline()
-            field = line.decode('utf-8').strip()
-            sline = field.split(':')
-            length = len(sline)
-            if length == 13:
-                timestamp = time.time()
-                data_dict = {}
-                try:
-                    for data in sline:
-                        if '=' in data:
-                            key = data.split('=')[0]
-                            val = data.split('=')[1]
-                            data_dict[key] = val
-                    self.callback(timestamp, data_dict)
-                except IndexError:
-                    print('IndexError')
-                    pass
-                except ValueError:
-                    print('ValueError')
-                    pass
+            try:
+                line = self.ser.readline()
+                field = line.decode('utf-8').strip()
+                sline = field.split(':')
+                length = len(sline)
+                if length == 13:
+                    timestamp = time.time()
+                    data_dict = {}
+                    try:
+                        for data in sline:
+                            if '=' in data:
+                                key = data.split('=')[0]
+                                val = data.split('=')[1]
+                                data_dict[key] = val
+                        has_all_key = True
+                        if key in ['rc', 'lq', 'ct', 'ed', 'id', 'ba', 'a1', 'a2', 'x', 'y', 'z']:
+                            if key not in data_dict.keys():
+                                has_all_key = False
+                        if has_all_key:
+                            self.callback(timestamp, data_dict)
+                        else:
+                            print('key parse error')
+                            print(field)
+                    except IndexError:
+                        print('IndexError')
+                    except ValueError:
+                        print('ValueError')
+            except UnicodeDecodeError:
+                print('UnicodeDecodeError')
     
     def run(self):
         self.stop_event.clear()

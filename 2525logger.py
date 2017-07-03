@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import serial
 import threading
-import matplotlib.pyplot as plt
 import time
 import os
 
@@ -32,6 +31,7 @@ def main():
     log_file.write(header + '\n')
     log_file.close()
 
+    print('---start---')
     # twilite2525
     try:
         port = port_reader()
