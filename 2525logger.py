@@ -8,7 +8,7 @@ from Twilite2525AReceiver import Twilite2525AReceiver
 
 log_folder = 'log'
 sensor_data = {}
-data_keys = ['rc', 'lq', 'ct', 'ed', 'id', 'ba', 'a1', 'a2', 'x', 'y', 'z']
+data_keys = ['rc', 'lq', 'ct', 'ed', 'id', 'ba', 'a1', 'a2', 'x', 'y', 'z', 'ts']
 
 def port_reader(file_name='port.txt'):
     with open(file_name, 'r') as p_file:

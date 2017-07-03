@@ -12,6 +12,7 @@ class Twilite2525AReceiver():
         self.ser = ser
         self.callback = callback
         self.stop_event = threading.Event()
+        self.ts = '-1'
 
     def _reading(self):
         while not self.stop_event.is_set():
@@ -20,6 +21,13 @@ class Twilite2525AReceiver():
                 field = line.decode('utf-8').strip()
                 sline = field.split(':')
                 length = len(sline)
+                if length == 3:
+                    try:
+                        self.ts = sline[2].split('=')[1]
+                    except IndexError:
+                        print('IndexError')
+                    except ValueError:
+                        print('ValueError') 
                 if length == 13:
                     timestamp = time.time()
                     data_dict = {}
@@ -34,6 +42,7 @@ class Twilite2525AReceiver():
                             if key not in data_dict.keys():
                                 has_all_key = False
                         if has_all_key:
+                            data_dict['ts'] = self.ts
                             self.callback(timestamp, data_dict)
                         else:
                             print('key parse error')

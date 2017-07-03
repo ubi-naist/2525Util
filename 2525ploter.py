@@ -16,7 +16,7 @@ log = False
 log_folder = 'log'
 log_path = ''
 
-data_keys = ['rc', 'lq', 'ct', 'ed', 'id', 'ba', 'a1', 'a2', 'x', 'y', 'z']
+data_keys = ['rc', 'lq', 'ct', 'ed', 'id', 'ba', 'a1', 'a2', 'x', 'y', 'z', 'ts']
 
 def argv_parser():
     argparser = ArgumentParser()
