@@ -16,12 +16,16 @@ def port_reader(file_name='port.txt'):
         return port
 
 def received(timestamp, data):
-    print(timestamp, data['ed'], data['id'], data['ct'], data['lq'], flush=True)
-    content = str(timestamp)
-    for key in data_keys:
-        content += ',' + data[key]
-    with open(log_path, 'a') as f:
-        f.write(content + '\n')
+    try:
+        print(timestamp, data['ed'], data['id'], data['ct'], data['lq'], flush=True)
+        content = str(timestamp)
+        for key in data_keys:
+            content += ',' + data[key]
+        with open(log_path, 'a') as f:
+            f.write(content + '\n')
+    except KeyError:
+        print('KeyError')
+        print(data)
     
 def main():
     log_file = open(log_path, 'w')
